@@ -1,14 +1,35 @@
-# Java 17을 사용하는 기본 이미지
-FROM openjdk:17-jdk-alpine
+# Stage 1: Build the application
+FROM gradle:7.5-jdk17 AS build
 
-# 컨테이너 내부의 작업 디렉토리 설정
+# Set the working directory
 WORKDIR /app
 
-# 호스트에서 컨테이너로 JAR 파일 복사
-COPY build/libs/*.jar /app.jar
+# Copy the Gradle wrapper and build files
+COPY gradle /app/gradle
+COPY gradlew /app/
+COPY build.gradle /app/
+COPY settings.gradle /app/
 
-# 애플리케이션이 사용하는 포트 노출
-EXPOSE 8081
+# Download dependencies
+RUN ./gradlew build --no-daemon
 
-# JAR 파일 실행 명령어 설정
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+# Copy the application source code
+COPY src /app/src
+
+# Build the application
+RUN ./gradlew build --no-daemon
+
+# Stage 2: Create the runtime image
+FROM openjdk:17-jdk-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the JAR file from the build stage
+COPY --from=build /app/build/libs/mungpy-0.0.1-SNAPSHOT.jar /app/mungpy-0.0.1-SNAPSHOT.jar
+
+# Expose the port the app runs on
+EXPOSE 8080
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "/app/mungpy-0.0.1-SNAPSHOT.jar"]
