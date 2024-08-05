@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # 호스트에서 컨테이너로 JAR 파일 복사
-COPY build/libs/*.jar app.jar
+COPY build/libs/*.jar /app.jar
 
 # 애플리케이션이 사용하는 포트 노출
 EXPOSE 8081
