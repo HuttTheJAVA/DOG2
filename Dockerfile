@@ -5,10 +5,10 @@ FROM openjdk:17-jdk-alpine
 WORKDIR /app
 
 # 호스트에서 컨테이너로 JAR 파일 복사
-COPY build/libs/mungpy-0.0.1-SNAPSHOT.jar /app/app.jar
+COPY build/libs/*.jar app.jar
 
 # 애플리케이션이 사용하는 포트 노출
 EXPOSE 8081
 
 # JAR 파일 실행 명령어 설정
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
